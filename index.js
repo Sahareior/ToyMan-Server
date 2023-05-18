@@ -35,6 +35,12 @@ async function run() {
         res.send(result)
     })
 
+    app.post('/items', async(req,res)=>{
+        const data = req.body
+        const result = await itemsCollections.insertOne(data)
+        res.send(result)
+    })
+
     app.get('/items', async (req, res) => {
         console.log(req.query);
         let query = {};
