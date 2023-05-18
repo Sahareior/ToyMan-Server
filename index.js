@@ -44,13 +44,19 @@ async function run() {
     app.get('/items', async (req, res) => {
         console.log(req.query);
         let query = {};
+      
         if (req.query && req.query.subcategory) {
-          query = { subcategory: req.query.subcategory};
+          query = { subcategory: req.query.subcategory };
+        } else if (req.query && req.query.email) {
+          query = { email: req.query.email };
         }
+      
         const cursor = itemsCollections.find(query);
         const result = await cursor.toArray();
         res.send(result);
       });
+      
+ 
 
 
       
