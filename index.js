@@ -29,6 +29,14 @@ async function run() {
     const itemsCollections = client.db('kidsShop').collection('allItems')
     // Send a ping to confirm a successful connection
 
+    app.get('/products', async(req,res)=>{
+        const cursor = productCollections.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+
+    
+
 
       
     await client.db("admin").command({ ping: 1 });
