@@ -9,7 +9,7 @@ app.use(express.json())
 
 //  
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.j0rll9s.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -40,9 +40,15 @@ async function run() {
         const result = await itemsCollections.insertOne(data)
         res.send(result)
     })
+    app.get('/items/:id', async(req, res) => {
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await itemsCollections.findOne(query);
+        res.send(result);
+    })
 
     app.get('/items', async (req, res) => {
-        console.log(req.query);
+    
         let query = {};
       
         if (req.query && req.query.subcategory) {
@@ -56,7 +62,29 @@ async function run() {
         res.send(result);
       });
       
- 
+    app.put('/items/:id', async(req,res)=>{
+        const id = req.params.id 
+        const query = {_id: new ObjectId(id)}
+        const options = {upsert:true}
+        const updatedData = req.body;
+
+        const data = {
+            $set: {
+              image: updatedData.image,
+               name: updatedData.name,
+               toyName: updatedData.toyName,
+               email: updatedData.email,
+               subcategory: updatedData.subcategory,
+               price: updatedData.price,
+               rating: updatedData.rating,
+               availableQuantity: updatedData.availableQuantity,
+               description: updatedData.description
+            }
+        }
+
+        const result = await itemsCollections.updateOne(query, data, options);
+        res.send(result);
+    })
 
 
       
