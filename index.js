@@ -27,6 +27,7 @@ async function run() {
     await client.connect();
     const productCollections = client.db('kidsShop').collection('trend_Products')
     const itemsCollections = client.db('kidsShop').collection('allItems')
+    const reviewCollections = client.db('kidsShop').collection('reviews')
     // Send a ping to confirm a successful connection
 
     app.get('/products', async(req,res)=>{
@@ -48,19 +49,22 @@ async function run() {
     })
 
     app.get('/items', async (req, res) => {
+      let query = {};
     
-        let query = {};
-      
-        if (req.query && req.query.subcategory) {
-          query = { subcategory: req.query.subcategory };
-        } else if (req.query && req.query.email) {
-          query = { email: req.query.email };
-        }
-      
-        const cursor = itemsCollections.find(query);
-        const result = await cursor.toArray();
-        res.send(result);
-      });
+      if (req.query && req.query.subcategory) {
+        query = { subcategory: req.query.subcategory };
+      } else if (req.query && req.query.toyName) {
+        query = { toyName: req.query.toyName };
+      } else if (req.query && req.query.email) {
+        query = { email: req.query.email };
+      }
+    
+      const sortOrder = req.query && req.query.sort === 'desc' ? -1 : 1;
+      const cursor = itemsCollections.find(query).sort({ price: sortOrder });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    
       
     app.put('/items/:id', async(req,res)=>{
         const id = req.params.id 
@@ -91,8 +95,25 @@ async function run() {
         const result = await itemsCollections.deleteOne(query)
         res.send(result)
     })
-
-
+    app.post('/productsByIds', async(req, res) => {
+      const ids = req.body;
+      const objectIds = ids.map(id => new ObjectId(id));
+      const query = { _id: { $in: objectIds } }
+      
+      const result = await itemsCollections.find(query).toArray();
+      res.send(result);
+    })
+    // reviews..........
+    app.post('/review', async(req,res)=>{
+      const newReview = req.body
+      const result = await reviewCollections.insertOne(newReview)
+      res.send(result)
+    })
+    app.get('/review', async(req,res)=>{
+      const cursor = reviewCollections.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
       
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
