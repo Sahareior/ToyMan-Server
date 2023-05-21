@@ -128,6 +128,7 @@ run().catch(console.dir);
 app.get('/', (req,res)=>{
     res.send("hii")
 })
+
 app.listen(port,()=>{
     console.log(`this app running on ${port}`)
 })
